@@ -37,7 +37,12 @@ export const getSpecificFromEmail = (term: string) => {
 
 export const getSpecificFromName = (term: string) => {
   const query = db.query(`
-  SELECT * FROM emailAddresses WHERE fullName LIKE '%${term}%'`);
+  SELECT * FROM emailAddresses WHERE fullName LIKE '%${term}%' COLLATE LOCALIZED`);
   const result = query.all();
   return result;
+};
+
+export const deleteEmailAddress = (email: string) => {
+  const deleteOne = db.query(`DELETE FROM emailAddresses WHERE email = $value`);
+  return deleteOne.all({ $value: email });
 };

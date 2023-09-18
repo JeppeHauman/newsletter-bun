@@ -1,11 +1,13 @@
 import { Elysia, t } from "elysia";
 import {
   addEmailAddress,
+  deleteEmailAddress,
   getAllEmailAddresses,
   getSpecificFromEmail,
   getSpecificFromName,
 } from "./database";
 import validator from "validator";
+import isEmail from "validator/lib/isEmail";
 
 const app = new Elysia()
   .get("/", () => getAllEmailAddresses())
@@ -38,14 +40,25 @@ const app = new Elysia()
   })
   .get("/specific-name", ({ query }) => {
     const term = String(query.term);
+    if ("ÆæØøÅå".includes(term)) {
+      throw new Error(`Search term cannot include [Æ,Ø,Å]`);
+    }
     if (!query.term || term.length <= 0) {
       throw new Error('Query parameter: "term" is required');
     }
     return getSpecificFromName(term);
   })
+  .delete("/unsubscribe/:mail", ({ params }) => {
+    if (!isEmail(params.mail)) {
+      throw new Error("You must provide a valid email address");
+    }
+    const deleted = deleteEmailAddress(params.mail);
+    if (deleted) return "Email address deleted";
+    else return "Email address not found";
+  })
 
   .listen(3000);
 
 console.log(
-  `🦊 Elysia is running at ${app.server?.hostname}:${app.server?.port}`
+  `🦊 Elysia is running at http://${app.server?.hostname}:${app.server?.port}`
 );
