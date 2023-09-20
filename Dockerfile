@@ -1,5 +1,6 @@
 FROM oven/bun
 
+WORKDIR /app
 
 COPY package.json .
 COPY bun.lockb .
